@@ -1,0 +1,14 @@
+[Unit]
+Description=DouYin bot
+After=rc-local.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/usr/local/bin/
+ExecStart=/usr/local/bin/douyinbot -conf=/usr/local/share/douyinbot/config.yaml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

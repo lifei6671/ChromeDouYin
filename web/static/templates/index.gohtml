@@ -1,0 +1,93 @@
+
+<!doctype html>
+<html lang>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Douyin online parsing and download without watermark | 抖音无水印在线解析下载</title>
+    <meta name="description" content="在线批量解析抖音视频和图片，支持无水印下载，官方数据接口，稳定，开源，免费，无广告。| Online batch parsing of Douyin videos and pictures, support for no watermark download, official data interface, stable, open source, free, no ads.">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwklEQVQ4T63TvU5CQRCG4WcwMfEuqOgNtQ2Nd4CxV2LHtVhJ0N7AHdjQUBtrrLwLA4ks2Rx+/Qucw3Y78807M7sz4ft5dq6mI7RQX7o/JCNzfdfetkNifRk6k9wLN9jYdxMkyZPQ1faZXYUwB/OCix8V/W4Y4zJDCsBAX7jdM7iQJY+udELu+cTrP2X/xU2+NMPAg3B3UPaVOOmFoQkapQC8Z8AUpyUBs6MAKrZQ+RErf2PlQTrKKK8gpZdpewgOXOcFTTxEjYwMoIkAAAAASUVORK5CYII=" id="favicon32">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABmUlEQVRYR82XK0wDQRCGv21TUUUJGBwGDBggGCSGBIcAWnBAgsNAgkKhSMDgCA8HtEXgSDBIDC9DDRgcpoSiKo52yea49DiutMttsz27M/98N7s7OyNo9tujgxSTwDiCIaAXSH27l4AXJA/AFSUuWOajGWnR0ChLP3HWkWSAZEN716CM4JQKW6R5+sunPkCeJJJNBCtAosnAQTMHyS6CDWYoh2mEAxzTR4JzYOCfgYNuBRymmOc5uPAbIMswMS6BbkPBPZkiVSZIc+/X/Qng/vl1C4LXIBzG/JmoAag9hxuDaa+XwAIw6p2JGkCObQSrhtMeLifZYZY1tegCqKsW4zHCadfldqgyqK6oC3DGIZIFXZVI9oIjplkUqArXyatGkYkU1+dc5p0eQY4MghNTqlo6kjkFsI9gScvRlLHkQJDnFhgxpampc6cAikCXpqMp8zcF8AnETSlq6lTaAsD6Flg+hNavofVCZL0UW3+M2uI5VhBWGxIFYL0lUxBWm1KviFttyz0Iq4OJB2F1NPO/qdaG0+DD3qLx/AuMVJFhmC8dSgAAAABJRU5ErkJggg==" id="favicon16">
+    <link rel="stylesheet" href="/static/css/markdown.min.css">
+    <link rel="stylesheet" href="/static/css/codemirror.min.css">
+    <link rel="stylesheet" href="/static/css/toastify.min.css">
+    <link rel="stylesheet" href="/static/css/bs-theme/minty.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/static/css/app.css?v=1.7.1">
+</head>
+<body class="webio-theme-minty">
+<div class="pywebio">
+    <div class="container no-fix-height" id="output-container">
+        <div class="markdown-body" id="markdown-body">
+            <div id="pywebio-scope-ROOT">
+                <div align="center" style="">
+                    <a href="https://tools.iminho.me/" alt="logo"><img src="/static/logo/logo192.png" width="191" alt="抖音无水印在线解析下载"></a>
+                    <h1 align="center">抖音无水印在线解析下载</h1>
+                </div>
+{{/*                <div style="display: grid; grid-auto-flow: column; grid-template-columns: 1fr 1fr 1fr 1fr;">*/}}
+{{/*                    <div>*/}}
+{{/*                        <button class="btn btn-link btn-sm">快捷指令</button>*/}}
+{{/*                    </div>*/}}
+{{/*                    <div>*/}}
+{{/*                        <button class="btn btn-link btn-sm">API</button>*/}}
+{{/*                    </div>*/}}
+{{/*                    <div>*/}}
+{{/*                        <button class="btn btn-link btn-sm">日志</button>*/}}
+{{/*                    </div>*/}}
+{{/*                    <div>*/}}
+{{/*                        <button class="btn btn-link btn-sm">关于</button>*/}}
+{{/*                    </div>*/}}
+{{/*                </div>*/}}
+            </div>
+        </div>
+    </div>
+    <div id="input-container" style="height: unset;">
+        <div id="input-cards" class="container"><div class="card" style="height: unset; width: unset;">
+                <h5 class="card-header">请将抖音的分享口令或网址粘贴于此</h5>
+                <div class="card-body">
+                    <form>
+                        <div class="input-container">
+                            <div class="form-group">
+                                <textarea id="data-7483" aria-describedby="data-7483_help" rows="6" class="form-control" placeholder="批量解析请直接粘贴多个口令或链接，无需使用符号分开。" required="required" position="0" onblur="true" name="data" auto_focus="true"></textarea>
+                                <div class="invalid-feedback"></div>  <!-- input 添加 is-invalid 类 -->
+                                <div class="valid-feedback"></div> <!-- input 添加 is-valid 类 -->
+                                <small id="data-7483_help" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="ws-form-submit-btns">
+                            <button type="submit" class="btn btn-primary">提交</button>
+                            <button type="reset" class="btn btn-warning">重置</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div></div>
+    </div>
+</div>
+<script src="/static/js/mustache.min.js" type="text/javascript"></script>
+<script src="/static/js/codemirror.min.js" type="text/javascript"></script>
+<script src="/static/codemirror/addons.js" type="text/javascript"></script>
+<script src="/static/js/prism.min.js" type="text/javascript"></script>
+<script src="/static/js/FileSaver.min.js" type="text/javascript"></script>
+<script src="/static/js/jquery.min.js" type="text/javascript"></script>
+<script src="/static/js/popper.min.js" type="text/javascript"></script>
+<script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/js/toastify.min.js" type="text/javascript"></script>
+<script src="/static/js/bs-custom-file-input.min.js" type="text/javascript"></script>
+<script src="/static/js/purify.min.js" type="text/javascript"></script>
+<script src="/static/js/bootstrap-select.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    if (window.navigator.userAgent.indexOf('MSIE ') !== -1 || window.navigator.userAgent.indexOf('Trident/') !== -1)
+        $('#output-container').html('<div class="alert alert-danger" role="alert"> Sorry, this website does not support IE browser. ☹ </div>');
+</script>
+<script src="/static/js/require.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function (){
+
+    })
+</script>
+<footer class="footer">
+    Powered by <a href="https://github.com/lifei6671/DouYinBot" target="_blank">DouYinBot</a>
+</footer>
+</body>
+</html>
