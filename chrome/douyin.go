@@ -520,6 +520,7 @@ type DouYinResult struct {
 	AwemeId    string `json:"aweme_id"`
 	Desc       string `json:"desc"`
 	CreateTime int    `json:"create_time"`
+	Type       string `json:"type"`
 	Author     struct {
 		AvatarThumb struct {
 			Height  float64  `json:"height"`
@@ -630,6 +631,9 @@ type Image struct {
 
 func FromDouYinDetail(d *DouYinDetail) *DouYinResult {
 	ret := &DouYinResult{}
+
+	ret.Type = MediaType(d.AwemeDetail.MediaType).String()
+
 	ret.Url = d.AwemeDetail.Video.PlayAddr.Uri
 	ret.AwemeId = d.AwemeDetail.AwemeId
 	ret.Desc = d.AwemeDetail.Desc
