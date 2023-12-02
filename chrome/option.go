@@ -6,15 +6,21 @@ import (
 
 type options struct {
 	ServiceURL string `json:"service_url"`
-	Cookie     string `json:"cookie"`
+	Cookies    []Cookie
 	Timeout    time.Duration
+}
+
+type Cookie struct {
+	Name   string `json:"name"`
+	Cookie string `json:"cookie"`
+	Domain string `json:"domain"`
 }
 
 type Option func(*options)
 
-func WithCookie(c string) Option {
+func WithCookies(c ...Cookie) Option {
 	return func(o *options) {
-		o.Cookie = c
+		o.Cookies = append(o.Cookies, c...)
 	}
 }
 

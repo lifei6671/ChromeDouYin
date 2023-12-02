@@ -4,23 +4,38 @@ addr: ":8090"
 # Gin启动模式：test、debug、release
 mode: release
 
+# 代理后的访问域名： https://www.iminho.me
+site_url:
+
 # API 接口请求的权限验证，基于HTTP Basic 的验证
 authorization:
   enable: false
   username:
   password:
 
-#WEB登录的cookie
-cookie: "ttwid=1%7CoxsjZKbrpUa71U-8bFp2m3ilMskaVih-aVnvYEPGnRM%7C1692926812%7Cf83726279996ea09536e36c28d655a3b6bab5036a98065cb3e40de01ccc5e4cb; passport_csrf_token=c0d539b96dc09e3694edc4769396ecb1; passport_csrf_token_default=c0d539b96dc09e3694edc4769396ecb1; webcast_local_quality=null; strategyABtestKey=%221696907137.696%22; stream_recommend_feed_params=%22%7B%5C%22cookie_enabled%5C%22%3Atrue%2C%5C%22screen_width%5C%22%3A1440%2C%5C%22screen_height%5C%22%3A900%2C%5C%22browser_online%5C%22%3Atrue%2C%5C%22cpu_core_num%5C%22%3A8%2C%5C%22device_memory%5C%22%3A8%2C%5C%22downlink%5C%22%3A10%2C%5C%22effective_type%5C%22%3A%5C%224g%5C%22%2C%5C%22round_trip_time%5C%22%3A200%7D%22; volume_info=%7B%22isUserMute%22%3Afalse%2C%22isMute%22%3Afalse%2C%22volume%22%3A0.5%7D; download_guide=%222%2F20231010%2F0%22; pwa2=%220%7C0%7C2%7C1%22; FORCE_LOGIN=%7B%22videoConsumedRemainSeconds%22%3A180%2C%22isForcePopClose%22%3A1%7D; passport_assist_user=CjwQrxBFHpi423GDwg00wdkrJ_oEGJNdpgDQqg7aALWwfTyORGdyh8rk6Y3r5O_HvEUBAqYeVC9v4zJvO64aSgo8mxmrk0sd4YVjGClRhiQ4wJzM3nUuH4se-qt3kYihraK0Tez9AOvikzOSSqNPf4I8T0ADimzVPyesN7YYELiXvg0Yia_WVCABIgED0BMqRg%3D%3D; n_mh=jr10LeZpK79oyuXVKiScXlEnxw32CuXluNMUZBOzh3Y; sso_uid_tt=9fd0c3c7b33478d95107037f94f4ac58; sso_uid_tt_ss=9fd0c3c7b33478d95107037f94f4ac58; toutiao_sso_user=aef261cccd0202e306907e7b22bea48f; toutiao_sso_user_ss=aef261cccd0202e306907e7b22bea48f; sid_ucp_sso_v1=1.0.0-KDRlZjU2NmJlY2ZhOWQ0YjlmMWYzYjEyYmE4MTAxYjZjY2E2MjNkODEKHQi3nOrD5gIQwu2TqQYY7zEgDDDAtPPVBTgGQPQHGgJobCIgYWVmMjYxY2NjZDAyMDJlMzA2OTA3ZTdiMjJiZWE0OGY; ssid_ucp_sso_v1=1.0.0-KDRlZjU2NmJlY2ZhOWQ0YjlmMWYzYjEyYmE4MTAxYjZjY2E2MjNkODEKHQi3nOrD5gIQwu2TqQYY7zEgDDDAtPPVBTgGQPQHGgJobCIgYWVmMjYxY2NjZDAyMDJlMzA2OTA3ZTdiMjJiZWE0OGY; odin_tt=a0e92a8554b76c260cd49348d5691d65869ac09f4167432e42bc4736ace8afd2c1bec93a621109e5275d93f698eb316f; passport_auth_status=5a1416325c69710f7ae273ae6ffade95%2C; passport_auth_status_ss=5a1416325c69710f7ae273ae6ffade95%2C; uid_tt=726e0bf22787aeb708879885f0472379; uid_tt_ss=726e0bf22787aeb708879885f0472379; sid_tt=cb593f753b4f15aefc82140a11e4eb92; sessionid=cb593f753b4f15aefc82140a11e4eb92; sessionid_ss=cb593f753b4f15aefc82140a11e4eb92; LOGIN_STATUS=1; _bd_ticket_crypt_doamin=3; _bd_ticket_crypt_cookie=b373a8694fe2cf8c04f6cd4fcd58c227; __security_server_data_status=1; store-region=cn-bj; store-region-src=uid; sid_guard=cb593f753b4f15aefc82140a11e4eb92%7C1696921298%7C5183987%7CSat%2C+09-Dec-2023+07%3A01%3A25+GMT; sid_ucp_v1=1.0.0-KDFlNDc3ZmFlYWE1YTE0NDk0NmJhZDZiMjQ3ZTA5ZTZlOWYyNzU3NTUKGQi3nOrD5gIQ0u2TqQYY7zEgDDgGQPQHSAQaAmxxIiBjYjU5M2Y3NTNiNGYxNWFlZmM4MjE0MGExMWU0ZWI5Mg; ssid_ucp_v1=1.0.0-KDFlNDc3ZmFlYWE1YTE0NDk0NmJhZDZiMjQ3ZTA5ZTZlOWYyNzU3NTUKGQi3nOrD5gIQ0u2TqQYY7zEgDDgGQPQHSAQaAmxxIiBjYjU5M2Y3NTNiNGYxNWFlZmM4MjE0MGExMWU0ZWI5Mg; msToken=aOZnDr1A6OjTngx7zGVijih3PJob2umMYXTSORdNHL4C-11z6iiEnPeFs9fqQAGVSL3ObWk_4vvktJ890VlYy-NquvAMn0LCCiQJ9XIXIlAG6kpbgJOzFclAsIM=; publish_badge_show_info=%220%2C0%2C0%2C1696921299020%22; SEARCH_RESULT_LIST_TYPE=%22single%22; IsDouyinActive=true; home_can_add_dy_2_desktop=%220%22; FOLLOW_LIVE_POINT_INFO=%22MS4wLjABAAAAZu94yXL7DOxO3XdW0-EHCcLEjxYOHe952P03e6fsL4k%2F1696953600000%2F0%2F0%2F1696923183549%22; FOLLOW_NUMBER_YELLOW_POINT_INFO=%22MS4wLjABAAAAZu94yXL7DOxO3XdW0-EHCcLEjxYOHe952P03e6fsL4k%2F1696953600000%2F0%2F1696922583550%2F0%22"
-
 # chrome的服务地址，如果未设置会自动下载
 # 建议使用docker启动 docker run -p 7317:7317 ghcr.io/go-rod/rod
-service_url: ws://127.0.0.1:9222/devtools/browser/5544bf48-c9a0-4cf5-94dd-5a76d900dbb3
+service_url: ws://192.168.31.10:7317/devtools/browser/b5427c79-ead4-4718-8230-f7566d136044
 
-# 匹配视频或图像的json请求链接
-aweme:
-  base: https://www.douyin.com/aweme/v1/web/aweme/*
-  # 匹配视频资源的url path部分
-  video: /aweme/v1/web/aweme/detail
-  # 匹配图片资源的 url path部分
-  image: /aweme/v1/web/aweme/post
+# 抖音相关配置
+douyin:
+  #WEB登录的cookie
+  cookie: "ttwid=1%7CoxsjZKbrpUa71U-8bFp2m3ilMskaVih-aVnvYEPGnRM%7C1692926812%7Cf83726279996ea09536e36c28d655a3b6bab5036a98065cb3e40de01ccc5e4cb; passport_csrf_token=c0d539b96dc09e3694edc4769396ecb1; passport_csrf_token_default=c0d539b96dc09e3694edc4769396ecb1; webcast_local_quality=null; strategyABtestKey=%221696907137.696%22; stream_recommend_feed_params=%22%7B%5C%22cookie_enabled%5C%22%3Atrue%2C%5C%22screen_width%5C%22%3A1440%2C%5C%22screen_height%5C%22%3A900%2C%5C%22browser_online%5C%22%3Atrue%2C%5C%22cpu_core_num%5C%22%3A8%2C%5C%22device_memory%5C%22%3A8%2C%5C%22downlink%5C%22%3A10%2C%5C%22effective_type%5C%22%3A%5C%224g%5C%22%2C%5C%22round_trip_time%5C%22%3A200%7D%22; volume_info=%7B%22isUserMute%22%3Afalse%2C%22isMute%22%3Afalse%2C%22volume%22%3A0.5%7D; download_guide=%222%2F20231010%2F0%22; pwa2=%220%7C0%7C2%7C1%22; FORCE_LOGIN=%7B%22videoConsumedRemainSeconds%22%3A180%2C%22isForcePopClose%22%3A1%7D; passport_assist_user=CjwQrxBFHpi423GDwg00wdkrJ_oEGJNdpgDQqg7aALWwfTyORGdyh8rk6Y3r5O_HvEUBAqYeVC9v4zJvO64aSgo8mxmrk0sd4YVjGClRhiQ4wJzM3nUuH4se-qt3kYihraK0Tez9AOvikzOSSqNPf4I8T0ADimzVPyesN7YYELiXvg0Yia_WVCABIgED0BMqRg%3D%3D; n_mh=jr10LeZpK79oyuXVKiScXlEnxw32CuXluNMUZBOzh3Y; sso_uid_tt=9fd0c3c7b33478d95107037f94f4ac58; sso_uid_tt_ss=9fd0c3c7b33478d95107037f94f4ac58; toutiao_sso_user=aef261cccd0202e306907e7b22bea48f; toutiao_sso_user_ss=aef261cccd0202e306907e7b22bea48f; sid_ucp_sso_v1=1.0.0-KDRlZjU2NmJlY2ZhOWQ0YjlmMWYzYjEyYmE4MTAxYjZjY2E2MjNkODEKHQi3nOrD5gIQwu2TqQYY7zEgDDDAtPPVBTgGQPQHGgJobCIgYWVmMjYxY2NjZDAyMDJlMzA2OTA3ZTdiMjJiZWE0OGY; ssid_ucp_sso_v1=1.0.0-KDRlZjU2NmJlY2ZhOWQ0YjlmMWYzYjEyYmE4MTAxYjZjY2E2MjNkODEKHQi3nOrD5gIQwu2TqQYY7zEgDDDAtPPVBTgGQPQHGgJobCIgYWVmMjYxY2NjZDAyMDJlMzA2OTA3ZTdiMjJiZWE0OGY; odin_tt=a0e92a8554b76c260cd49348d5691d65869ac09f4167432e42bc4736ace8afd2c1bec93a621109e5275d93f698eb316f; passport_auth_status=5a1416325c69710f7ae273ae6ffade95%2C; passport_auth_status_ss=5a1416325c69710f7ae273ae6ffade95%2C; uid_tt=726e0bf22787aeb708879885f0472379; uid_tt_ss=726e0bf22787aeb708879885f0472379; sid_tt=cb593f753b4f15aefc82140a11e4eb92; sessionid=cb593f753b4f15aefc82140a11e4eb92; sessionid_ss=cb593f753b4f15aefc82140a11e4eb92; LOGIN_STATUS=1; _bd_ticket_crypt_doamin=3; _bd_ticket_crypt_cookie=b373a8694fe2cf8c04f6cd4fcd58c227; __security_server_data_status=1; store-region=cn-bj; store-region-src=uid; sid_guard=cb593f753b4f15aefc82140a11e4eb92%7C1696921298%7C5183987%7CSat%2C+09-Dec-2023+07%3A01%3A25+GMT; sid_ucp_v1=1.0.0-KDFlNDc3ZmFlYWE1YTE0NDk0NmJhZDZiMjQ3ZTA5ZTZlOWYyNzU3NTUKGQi3nOrD5gIQ0u2TqQYY7zEgDDgGQPQHSAQaAmxxIiBjYjU5M2Y3NTNiNGYxNWFlZmM4MjE0MGExMWU0ZWI5Mg; ssid_ucp_v1=1.0.0-KDFlNDc3ZmFlYWE1YTE0NDk0NmJhZDZiMjQ3ZTA5ZTZlOWYyNzU3NTUKGQi3nOrD5gIQ0u2TqQYY7zEgDDgGQPQHSAQaAmxxIiBjYjU5M2Y3NTNiNGYxNWFlZmM4MjE0MGExMWU0ZWI5Mg; msToken=aOZnDr1A6OjTngx7zGVijih3PJob2umMYXTSORdNHL4C-11z6iiEnPeFs9fqQAGVSL3ObWk_4vvktJ890VlYy-NquvAMn0LCCiQJ9XIXIlAG6kpbgJOzFclAsIM=; publish_badge_show_info=%220%2C0%2C0%2C1696921299020%22; SEARCH_RESULT_LIST_TYPE=%22single%22; IsDouyinActive=true; home_can_add_dy_2_desktop=%220%22; FOLLOW_LIVE_POINT_INFO=%22MS4wLjABAAAAZu94yXL7DOxO3XdW0-EHCcLEjxYOHe952P03e6fsL4k%2F1696953600000%2F0%2F0%2F1696923183549%22; FOLLOW_NUMBER_YELLOW_POINT_INFO=%22MS4wLjABAAAAZu94yXL7DOxO3XdW0-EHCcLEjxYOHe952P03e6fsL4k%2F1696953600000%2F0%2F1696922583550%2F0%22"
+  #cookie对应的域名
+  domain: ""
+
+  # 匹配视频或图像的json请求链接
+  aweme:
+    base: https://www.douyin.com/aweme/v1/web/aweme/*
+    # 匹配视频资源的url path部分
+    video: /aweme/v1/web/aweme/detail
+    # 匹配图片资源的 url path部分
+    image: /aweme/v1/web/aweme/post
+
+# 小红书相关配置
+xiaohongshu:
+  #小红书登录的cookie
+  cookie: "gid.ss=gSMQ9UOnDuZwH2oRGJG6BW6e4grs67TaYpnrW+8Wmd1xhXNdYfNC+2xBrywBu0NB; timestamp2=1670160775850662fa67c7a50f5c4cb573ec8cad851e8b086309ab1fa462889; timestamp2.sig=nIyXfHbZ1qp3EtK4gvxgyzBRe5t0vI7twlQirr6xHB0; xsecappid=xhs-pc-web; a1=18754a5dde35ej768d6pfi0doh6i6bkrg2u7fsgjg50000448828; webId=f5e2e603297b2d1713d0bf804e4e263e; gid=yYW2402fq0kYyYW2402ffJMkdq2dVWKYfKUi7Vk38flxKW283KDTFi88844YYJY8DfdYJfKK; gid.sign=koMWMkRwUzZy9talBpOOUWNqAoc=; abRequestId=f5e2e603297b2d1713d0bf804e4e263e; webBuild=3.18.3; cache_feeds=[]; unread={%22ub%22:%22654075ae00000000250092d5%22%2C%22ue%22:%22655d83b90000000033006892%22%2C%22uc%22:31}; websectiga=82e85efc5500b609ac1166aaf086ff8aa4261153a448ef0be5b17417e4512f28; sec_poison_id=bf1cfe7e-c400-488e-9287-dba0c41c7b89; web_session=0400697f3ecc1b7c242f41735e374b934373be; RT=\"z=1&dm=xiaohongshu.com&si=104916cc-cfa7-4f1f-9476-b337e3a651fa&ss=lpo2q7cy&sl=0&tt=0&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=2s&ul=23zue\""
+  #cookie对应的域名
+  domain: ".xiaohongshu.com"
+

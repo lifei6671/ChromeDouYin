@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,20 +10,34 @@ import (
 var Default Config
 
 type Config struct {
-	Addr          string `yaml:"addr"`
+	Addr       string `yaml:"addr"`
+	ServiceURL string `yaml:"service_url"`
+	Mode       string `yaml:"mode"`
+	SiteURL    string `yaml:"site_url"`
+
 	Authorization struct {
 		Enable   bool   `yaml:"enable"`
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"authorization"`
-	Cookie     string `yaml:"cookie"`
-	ServiceURL string `yaml:"service_url"`
-	Mode       string `yaml:"mode"`
-	Aweme      struct {
-		Base  string `yaml:"base"`
-		Video string `yaml:"video"`
-		Image string `yaml:"image"`
-	} `yaml:"aweme"`
+	DouYin struct {
+		Cookie string `yaml:"cookie"`
+		Domain string `yaml:"domain"`
+		Aweme  struct {
+			Base  string `yaml:"base"`
+			Video string `yaml:"video"`
+			Image string `yaml:"image"`
+		} `yaml:"aweme"`
+	} `yaml:"douyin"`
+	XiaoHongShu struct {
+		Cookie string `yaml:"cookie"`
+		Domain string `yaml:"domain"`
+	} `yaml:"xiaohongshu"`
+}
+
+func (c Config) String() string {
+	b, _ := json.Marshal(c)
+	return string(b)
 }
 
 // GetAssetLocation searches for `file` in certain locations

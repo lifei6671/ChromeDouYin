@@ -27,7 +27,7 @@ var (
 type Chrome struct {
 	opts    *options
 	browser *rod.Browser
-	cookies []*proto.NetworkCookieParam
+	cookies map[string][]*proto.NetworkCookieParam
 }
 
 func New(opts ...Option) *Chrome {
@@ -39,31 +39,37 @@ func New(opts ...Option) *Chrome {
 	}
 
 	c := &Chrome{
-		opts: opt,
+		opts:    opt,
+		cookies: make(map[string][]*proto.NetworkCookieParam),
 	}
 	r, err := c.initBrowser()
 	if err != nil {
 		panic(err)
 	}
 	c.browser = r
-	if len(opt.Cookie) > 0 {
-		var cookies []*proto.NetworkCookie
-		header := http.Header{}
-		header.Add("Cookie", opt.Cookie)
-		request := http.Request{Header: header}
+	if len(opt.Cookies) > 0 {
+		for _, cookie := range opt.Cookies {
+			if len(cookie.Cookie) == 0 {
+				continue
+			}
+			var cookies []*proto.NetworkCookie
+			header := http.Header{}
+			header.Add("Cookie", cookie.Cookie)
+			request := http.Request{Header: header}
 
-		for _, cookie := range request.Cookies() {
-			cookies = append(cookies, &proto.NetworkCookie{
-				Name:    cookie.Name,
-				Value:   cookie.Value,
-				Domain:  ".douyin.com",
-				Path:    "/",
-				Expires: proto.TimeSinceEpoch(time.Now().Add(7 * 24 * time.Hour).Unix()),
-				Secure:  true,
-			})
+			for _, rCookie := range request.Cookies() {
+				cookies = append(cookies, &proto.NetworkCookie{
+					Name:    rCookie.Name,
+					Value:   rCookie.Value,
+					Domain:  cookie.Domain,
+					Path:    "/",
+					Expires: proto.TimeSinceEpoch(time.Now().Add(7 * 24 * time.Hour).Unix()),
+					Secure:  true,
+				})
+			}
+
+			c.cookies[cookie.Name] = proto.CookiesToParams(cookies)
 		}
-
-		c.cookies = proto.CookiesToParams(cookies)
 	}
 	return c
 }
@@ -96,6 +102,7 @@ func (c *Chrome) initBrowser() (*rod.Browser, error) {
 	}
 	return r, nil
 }
+
 func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, string, error) {
 	url := pattern.FindString(b)
 	if len(url) == 0 {
@@ -104,8 +111,8 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 	if !strings.Contains(url, "v.douyin.com") {
 		return nil, "", ErrParseURLFail
 	}
-	if len(c.cookies) > 0 {
-		err := c.browser.SetCookies(c.cookies)
+	if cookie, ok := c.cookies["douyin"]; ok {
+		err := c.browser.SetCookies(cookie)
 		if err != nil {
 			log.Println(err)
 			return nil, "", err
@@ -138,10 +145,10 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 	//匹配所有XHR请求
 	_ = router.Add("", proto.NetworkResourceTypeXHR, func(ctx *rod.Hijack) {
 		if videoType == 0 {
-			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.Aweme.Video) {
+			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.DouYin.Aweme.Video) {
 				videoType = MediaTypeVideo
 			}
-			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.Aweme.Image) {
+			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.DouYin.Aweme.Image) {
 				videoType = MediaTypeImage
 			}
 			if videoType > 0 {
@@ -235,4 +242,110 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 	data.ShareURL = url
 
 	return &data, rawData, nil
+}
+
+func (c *Chrome) XiaoHongShuDetail(ctx context.Context, b string) (*XiaoHongShuDetail, string, error) {
+	url := pattern.FindString(b)
+	if len(url) == 0 {
+		return nil, "", ErrParseURLFail
+	}
+	if !strings.Contains(url, "xhslink.com") {
+		return nil, "", ErrParseURLFail
+	}
+	if cookie, ok := c.cookies["xiaohongshu"]; ok {
+		err := c.browser.SetCookies(cookie)
+		if err != nil {
+			log.Println(err)
+			return nil, "", err
+		}
+	}
+	page, err := stealth.Page(c.browser)
+	if err != nil {
+		log.Println(err)
+		if strings.Contains(err.Error(), "use of closed network connection") {
+			c.browser, err = c.initBrowser()
+			if err != nil {
+				log.Println(err)
+			} else {
+				page, err = stealth.Page(c.browser)
+			}
+		}
+		if err != nil {
+			return nil, "", err
+		}
+	}
+	page = page.Context(ctx)
+
+	defer page.MustClose()
+
+	router := page.HijackRequests()
+	defer router.MustStop()
+
+	//匹配所有XHR请求
+	_ = router.Add("", proto.NetworkResourceTypeXHR, func(ctx *rod.Hijack) {
+		ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+	})
+	//拦截所有fetch类型请求
+	_ = router.Add("*", proto.NetworkResourceTypeFetch, func(ctx *rod.Hijack) {
+		if ctx.Request.Type() == proto.NetworkResourceTypeFetch {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		ctx.ContinueRequest(&proto.FetchContinueRequest{})
+	})
+	//拦截所有字体请求
+	_ = router.Add("*", proto.NetworkResourceTypeFont, func(ctx *rod.Hijack) {
+		if ctx.Request.Type() == proto.NetworkResourceTypeFont {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		ctx.ContinueRequest(&proto.FetchContinueRequest{})
+	})
+	//拦截所有图片的请求
+	_ = router.Add("*", proto.NetworkResourceTypeImage, func(ctx *rod.Hijack) {
+		if ctx.Request.Type() == proto.NetworkResourceTypeImage {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		ctx.ContinueRequest(&proto.FetchContinueRequest{})
+	})
+	//拦截所有样式表的请求
+	_ = router.Add("*", proto.NetworkResourceTypeStylesheet, func(ctx *rod.Hijack) {
+		if ctx.Request.Type() == proto.NetworkResourceTypeStylesheet {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		ctx.ContinueRequest(&proto.FetchContinueRequest{})
+	})
+
+	go router.Run()
+
+	err = page.Navigate(url)
+	if err != nil {
+		log.Printf("小红书解析失败: url[%s] errmsg[%s]", url, err)
+		return nil, "", err
+	}
+	// 监听 Document 请求
+	page.MustWaitLoad()
+	eval, err := page.Eval(`() => window.__INITIAL_STATE__`)
+	if err != nil {
+		log.Printf("小红书解析失败: url[%s] errmsg[%s]", url, err)
+		return nil, "", err
+	}
+	firstNoteId := eval.Value.Get("note").Get("firstNoteId").Get("_value").Val()
+
+	val, err := eval.Value.Get("note").Get("noteDetailMap").Get(firstNoteId.(string)).Get("note").MarshalJSON()
+	if err != nil {
+		log.Printf("小红书解析失败: url[%s] errmsg[%s]", url, err)
+		return nil, "", err
+	}
+	var data XiaoHongShuDetail
+
+	err = json.Unmarshal(val, &data)
+	if err != nil {
+		log.Printf("小红书解析失败: url[%s] errmsg[%s]", url, err)
+		return nil, "", err
+	}
+
+	return &data, string(val), nil
 }
