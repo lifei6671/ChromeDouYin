@@ -49,7 +49,7 @@ func Run(addr string, ch func() *chrome.Chrome) error {
 // DouYin API 接口
 func DouYin(c *gin.Context) {
 	//如果开启了token校验，需要判断是否传递了token
-	if config.Default.Authorization.Enable || c.Request.RequestURI != "/" {
+	if config.Default.Authorization.Enable && c.Request.RequestURI != "/" {
 		username, password, ok := c.Request.BasicAuth()
 		if !ok || config.Default.Authorization.Username != username || config.Default.Authorization.Password != password {
 			c.AbortWithStatus(http.StatusUnauthorized)

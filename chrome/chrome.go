@@ -16,7 +16,6 @@ import (
 	"github.com/go-rod/stealth"
 
 	"github.com/lifei6671/chrome-douyin/config"
-	"github.com/lifei6671/chrome-douyin/utils"
 )
 
 var pattern = regexp.MustCompile(`http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+`)
@@ -104,6 +103,8 @@ func (c *Chrome) initBrowser() (*rod.Browser, error) {
 }
 
 func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, string, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*20)
+	defer cancel()
 	url := pattern.FindString(b)
 	if len(url) == 0 {
 		return nil, "", ErrParseURLFail
@@ -111,6 +112,7 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 	if !strings.Contains(url, "v.douyin.com") {
 		return nil, "", ErrParseURLFail
 	}
+	log.Println("douyin-url:", url)
 	if cookie, ok := c.cookies["douyin"]; ok {
 		err := c.browser.SetCookies(cookie)
 		if err != nil {
@@ -138,12 +140,47 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 	defer page.MustClose()
 
 	var videoType MediaType
+	var awemeId string
 	ch := make(chan string)
 
 	router := page.HijackRequests()
 	defer router.MustStop()
-	//匹配所有XHR请求
-	_ = router.Add("", proto.NetworkResourceTypeXHR, func(ctx *rod.Hijack) {
+	_ = router.MustAdd("", func(ctx *rod.Hijack) {
+		//图片的链接
+		if strings.HasPrefix(ctx.Request.URL().String(), "https://www.douyin.com/note/") {
+			awemeId = strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(ctx.Request.URL().Path, "/note/"), "/"), "/")
+			log.Println(b, awemeId)
+		}
+		//视频的链接
+		if strings.HasPrefix(ctx.Request.URL().String(), "https://www.douyin.com/video/") {
+			awemeId = strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(ctx.Request.URL().Path, "/video/"), "/"), "/")
+			log.Println(b, awemeId)
+		}
+
+		if strings.Contains(ctx.Request.URL().Host, "mcs.zijieapi.com") {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		//拦截字体
+		if ctx.Request.Type() == proto.NetworkResourceTypeFont {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		//拦截图片
+		if ctx.Request.Type() == proto.NetworkResourceTypeImage {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		//拦截视频
+		if ctx.Request.Type() == proto.NetworkResourceTypeMedia {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		//拦截所有WS请求
+		//if ctx.Request.Type() == proto.NetworkResourceTypeWebSocket {
+		//	ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+		//	return
+		//}
 		if videoType == 0 {
 			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.DouYin.Aweme.Video) {
 				videoType = MediaTypeVideo
@@ -161,57 +198,10 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 				return
 			}
 		}
-		//ctx.ContinueRequest(&proto.FetchContinueRequest{})
-		ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+		log.Println(awemeId, ctx.Request.Type(), ctx.Request.Method(), ctx.Request.URL().String())
+		ctx.ContinueRequest(&proto.FetchContinueRequest{})
+	})
 
-	})
-	//拦截所有fetch类型请求
-	_ = router.Add("*", proto.NetworkResourceTypeFetch, func(ctx *rod.Hijack) {
-		if ctx.Request.Type() == proto.NetworkResourceTypeFetch {
-			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-			return
-		}
-		ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	})
-	//拦截所有字体请求
-	_ = router.Add("*", proto.NetworkResourceTypeFont, func(ctx *rod.Hijack) {
-		if ctx.Request.Type() == proto.NetworkResourceTypeFont {
-			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-			return
-		}
-		ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	})
-	//拦截所有图片的请求
-	_ = router.Add("*", proto.NetworkResourceTypeImage, func(ctx *rod.Hijack) {
-		if ctx.Request.Type() == proto.NetworkResourceTypeImage {
-			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-			return
-		}
-		ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	})
-	//拦截所有样式表的请求
-	_ = router.Add("*", proto.NetworkResourceTypeStylesheet, func(ctx *rod.Hijack) {
-		if ctx.Request.Type() == proto.NetworkResourceTypeStylesheet {
-			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-			return
-		}
-		ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	})
-	//拦截所有WS的请求
-	//_ = router.Add("*", proto.NetworkResourceTypeWebSocket, func(ctx *rod.Hijack) {
-	//	if ctx.Request.Type() == proto.NetworkResourceTypeWebSocket {
-	//		ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-	//		return
-	//	}
-	//	ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	//})
-	router.MustAdd("https://mcs.zijieapi.com/*", func(ctx *rod.Hijack) {
-		if ctx.Request.Type() == proto.NetworkResourceTypeXHR {
-			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
-			return
-		}
-		ctx.ContinueRequest(&proto.FetchContinueRequest{})
-	})
 	go router.Run()
 
 	err = page.Navigate(url)
@@ -219,7 +209,13 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 		log.Println(err)
 		return nil, "", err
 	}
-	rawData := <-ch
+	var rawData string
+	select {
+	case rawData = <-ch:
+		break
+	case <-ctx.Done():
+		return nil, "", ctx.Err()
+	}
 	var data DouYinDetail
 
 	if videoType == MediaTypeVideo {
@@ -236,7 +232,12 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 			log.Printf("[ERROR] json unmarshal fail: errmsg[%v] body[%s]", err, rawData)
 			return nil, "", err
 		}
-		data.AwemeDetail = utils.First(images.AwemeList)
+		for _, aweme := range images.AwemeList {
+			if aweme.AwemeId == awemeId {
+				data.AwemeDetail = aweme
+				break
+			}
+		}
 		data.StatusCode = images.StatusCode
 	}
 	data.ShareURL = url
