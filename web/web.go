@@ -4,13 +4,14 @@ import (
 	"crypto/md5"
 	"embed"
 	"encoding/hex"
-	"github.com/lifei6671/chrome-douyin/config"
 	"html/template"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/lifei6671/chrome-douyin/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
@@ -49,6 +50,7 @@ func Run(addr string, ch func() *chrome.Chrome) error {
 // DouYin API 接口
 func DouYin(c *gin.Context) {
 	//如果开启了token校验，需要判断是否传递了token
+	log.Println(config.Default.Authorization.Enable)
 	if config.Default.Authorization.Enable && c.Request.RequestURI != "/" {
 		username, password, ok := c.Request.BasicAuth()
 		if !ok || config.Default.Authorization.Username != username || config.Default.Authorization.Password != password {
