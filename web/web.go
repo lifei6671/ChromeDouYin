@@ -29,7 +29,7 @@ var _cache = cache.New(24*time.Hour, 10*time.Minute)
 func Run(addr string, ch func() *chrome.Chrome) error {
 	_chrome = ch()
 	r := gin.Default()
-
+	log.Println(" [GIN] router initialization completed")
 	templ := template.Must(template.New("").ParseFS(FS, "static/templates/*.gohtml"))
 	r.SetHTMLTemplate(templ)
 

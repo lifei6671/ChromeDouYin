@@ -75,8 +75,10 @@ func New(opts ...Option) *Chrome {
 
 func (c *Chrome) initBrowser() (*rod.Browser, error) {
 	var r *rod.Browser
-	if strings.HasPrefix(c.opts.ServiceURL, "ws://") {
-		r = rod.New().ControlURL(c.opts.ServiceURL)
+	if strings.HasPrefix(c.opts.ServiceURL, "local") {
+		u := launcher.New().MustLaunch()
+		log.Printf(" [GIN] defaut launch %s", u)
+		r = rod.New().ControlURL(u)
 	} else {
 		l := launcher.MustNewManaged(c.opts.ServiceURL)
 		l.Set("disable-gpu").Delete("disable-gpu")
@@ -103,7 +105,7 @@ func (c *Chrome) initBrowser() (*rod.Browser, error) {
 }
 
 func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*20)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 	defer cancel()
 	url := pattern.FindString(b)
 	if len(url) == 0 {
@@ -186,13 +188,17 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 				videoType = MediaTypeVideo
 			}
 			if strings.HasPrefix(ctx.Request.URL().Path, config.Default.DouYin.Aweme.Image) {
-				videoType = MediaTypeImage
+				//videoType = MediaTypeImage
 			}
 			if videoType > 0 {
 				if bodyErr := ctx.LoadResponse(http.DefaultClient, true); bodyErr != nil {
 					log.Printf("[ERROR] hijack fail: errmsg[%v] url[%s]", bodyErr, ctx.Request.URL().String())
 				}
 				log.Printf("video_type[%s] status_code[%d] video_url[%s]", videoType, ctx.Response.Payload().ResponseCode, ctx.Request.URL().String())
+				body := ctx.Response.Body()
+				if len(body) == 0 {
+					log.Printf("status error: %d", ctx.Response.RawResponse.StatusCode)
+				}
 				ch <- ctx.Response.Body()
 				close(ch)
 				return
