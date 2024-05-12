@@ -14,6 +14,7 @@ type Config struct {
 	ServiceURL string `yaml:"service_url"`
 	Mode       string `yaml:"mode"`
 	SiteURL    string `yaml:"site_url"`
+	DouYinApi  string `yaml:"douyin_api"`
 
 	Authorization struct {
 		Enable   bool   `yaml:"enable"`

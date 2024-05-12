@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -104,6 +105,30 @@ func (c *Chrome) initBrowser() (*rod.Browser, error) {
 	return r, nil
 }
 
+func (c *Chrome) DouYinAPIDetail(ctx context.Context, b string) (*DouYinResult, string, error) {
+	url := pattern.FindString(b)
+	if len(url) == 0 {
+		return nil, "", ErrParseURLFail
+	}
+
+	api := config.Default.DouYinApi + "?url=" + url
+	resp, err := http.Get(api)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+	var apiModel DouYinAPIResult
+	body, ioErr := io.ReadAll(resp.Body)
+	if ioErr != nil {
+		return nil, "", ioErr
+	}
+	err = json.Unmarshal(body, &apiModel)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return FromDouYinApi(&apiModel), "", err
+}
 func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, string, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 	defer cancel()
@@ -137,8 +162,16 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 			return nil, "", err
 		}
 	}
+	//baiduspider
 	page = page.Context(ctx)
 
+	if userErr := page.SetUserAgent(&proto.NetworkSetUserAgentOverride{
+		UserAgent:      "baiduspider",
+		AcceptLanguage: "zh-tw",
+		Platform:       "",
+	}); userErr != nil {
+		log.Printf("UserAgent err:%s", userErr)
+	}
 	defer page.MustClose()
 
 	var videoType MediaType
@@ -147,7 +180,8 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 
 	router := page.HijackRequests()
 	defer router.MustStop()
-	_ = router.MustAdd("", func(ctx *rod.Hijack) {
+	_ = router.MustAdd("*", func(ctx *rod.Hijack) {
+		log.Println(awemeId, ctx.Request.Type(), ctx.Request.Method(), ctx.Request.URL().String())
 		//图片的链接
 		if strings.HasPrefix(ctx.Request.URL().String(), "https://www.douyin.com/note/") {
 			awemeId = strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(ctx.Request.URL().Path, "/note/"), "/"), "/")
@@ -157,6 +191,27 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 		if strings.HasPrefix(ctx.Request.URL().String(), "https://www.douyin.com/video/") {
 			awemeId = strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(ctx.Request.URL().Path, "/video/"), "/"), "/")
 			log.Println(b, awemeId)
+		}
+		//如果是验证码请求，则伪造返回值
+		if strings.HasPrefix(ctx.Request.URL().String(), "https://verify.zijieapi.com/captcha/verify") {
+			log.Println(awemeId, ctx.Request.Type(), ctx.Request.Method(), ctx.Request.URL().String())
+			ctx.MustLoadResponse()
+			ctx.Response.SetBody(`{"code":200,"data":null,"message":"验证通过"}`)
+			return
+		}
+		if strings.HasPrefix(ctx.Request.URL().String(), "https://verify.zijieapi.com/captcha/get") {
+			ctx.MustLoadResponse()
+			ctx.Response.SetBody(`{"code":10,"data":null,"message":"验证通过"}`)
+			//ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		if strings.HasPrefix(ctx.Request.URL().String(), "https://rmc.bytedance.com/verifycenter/captcha/v2") {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
+		}
+		if strings.HasPrefix(ctx.Request.URL().String(), " https://privacy.zijieapi.com/api/web-cmp/sdk/") {
+			ctx.Response.Fail(proto.NetworkErrorReasonBlockedByClient)
+			return
 		}
 
 		if strings.Contains(ctx.Request.URL().Host, "mcs.zijieapi.com") {
@@ -204,7 +259,6 @@ func (c *Chrome) DouYinDetail(ctx context.Context, b string) (*DouYinDetail, str
 				return
 			}
 		}
-		log.Println(awemeId, ctx.Request.Type(), ctx.Request.Method(), ctx.Request.URL().String())
 		ctx.ContinueRequest(&proto.FetchContinueRequest{})
 	})
 

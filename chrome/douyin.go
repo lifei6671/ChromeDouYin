@@ -721,3 +721,92 @@ func FromDouYinDetail(d *DouYinDetail) *DouYinResult {
 	ret.Images = d.AwemeDetail.Images
 	return ret
 }
+
+func FromDouYinApi(d *DouYinAPIResult) *DouYinResult {
+	ret := &DouYinResult{}
+
+	ret.Type = MediaType(d.AwemeDetail.MediaType).String()
+
+	ret.Url = d.AwemeDetail.Video.PlayAddr.Uri
+	ret.AwemeId = d.AwemeDetail.AwemeId
+	ret.Desc = d.AwemeDetail.Desc
+	ret.CreateTime = d.AwemeDetail.CreateTime
+
+	ret.Author.Uid = d.AwemeDetail.Author.Uid
+	ret.Author.ShortId = d.AwemeDetail.Author.ShortId
+	ret.Author.Nickname = d.AwemeDetail.Author.Nickname
+	ret.Author.Signature = d.AwemeDetail.Author.Signature
+
+	for _, cover := range d.AwemeDetail.Author.CoverUrl {
+		ret.Author.CoverUrl = append(ret.Author.CoverUrl, struct {
+			Height  float64  `json:"height"`
+			Uri     string   `json:"uri"`
+			UrlList []string `json:"url_list"`
+			Width   float64  `json:"width"`
+		}{Height: float64(cover.Height), Uri: cover.Uri, UrlList: cover.UrlList, Width: float64(cover.Width)})
+	}
+	ret.Author.AvatarThumb.UrlList = d.AwemeDetail.Author.AvatarThumb.UrlList
+	ret.Author.AvatarThumb.Uri = d.AwemeDetail.Author.AvatarThumb.Uri
+	ret.Author.AvatarThumb.Width = float64(d.AwemeDetail.Author.AvatarThumb.Width)
+	ret.Author.AvatarThumb.Height = float64(d.AwemeDetail.Author.AvatarThumb.Height)
+
+	ret.Author.ShareInfo.ShareDescInfo = d.AwemeDetail.Author.ShareInfo.ShareDescInfo
+	ret.Author.ShareInfo.ShareDesc = d.AwemeDetail.Author.ShareInfo.ShareDesc
+	ret.Author.ShareInfo.ShareQrcodeUrl.Uri = d.AwemeDetail.Author.ShareInfo.ShareQrcodeUrl.Uri
+	ret.Author.ShareInfo.ShareQrcodeUrl.UrlList = d.AwemeDetail.Author.ShareInfo.ShareQrcodeUrl.UrlList
+	ret.Author.ShareInfo.ShareTitle = d.AwemeDetail.Author.ShareInfo.ShareTitle
+	ret.Author.ShareInfo.ShareTitleMyself = d.AwemeDetail.Author.ShareInfo.ShareTitleMyself
+	ret.Author.ShareInfo.ShareTitleOther = d.AwemeDetail.Author.ShareInfo.ShareTitleOther
+	ret.Author.ShareInfo.ShareUrl = d.AwemeDetail.Author.ShareInfo.ShareUrl
+	ret.Author.ShareInfo.ShareWeiboDesc = d.AwemeDetail.Author.ShareInfo.ShareWeiboDesc
+
+	ret.Author.Status = d.AwemeDetail.Author.Status
+	ret.Author.UserAge = d.AwemeDetail.Author.UserAge
+	ret.Author.UserCanceled = d.AwemeDetail.Author.UserCanceled
+	ret.Author.UserPermissions = d.AwemeDetail.Author.UserPermissions
+	ret.Author.VerificationType = d.AwemeDetail.Author.VerificationType
+	ret.Author.SpecialFollowStatus = d.AwemeDetail.Author.SpecialFollowStatus
+	ret.Author.SpecialPeopleLabels = d.AwemeDetail.Author.SpecialPeopleLabels
+	ret.Author.UniqueId = d.AwemeDetail.Author.UniqueId
+	ret.Author.TotalFavorited = d.AwemeDetail.Author.TotalFavorited
+	ret.Author.CfList = d.AwemeDetail.Author.CfList
+	ret.Author.CloseFriendType = d.AwemeDetail.Author.CloseFriendType
+	ret.Author.ContrailList = d.AwemeDetail.Author.ContrailList
+	ret.Author.CustomVerify = d.AwemeDetail.Author.CustomVerify
+	ret.Author.ImRoleIds = d.AwemeDetail.Author.ImRoleIds
+	ret.Author.IsBlockingV2 = d.AwemeDetail.Author.IsBlockedV2
+	ret.Author.IsBlockingV2 = d.AwemeDetail.Author.IsBlockingV2
+	ret.Author.OfflineInfoList = d.AwemeDetail.Author.OfflineInfoList
+	ret.Author.SecUid = d.AwemeDetail.Author.SecUid
+	ret.Author.SignatureExtra = d.AwemeDetail.Author.SignatureExtra
+
+	ret.VideoData.WmVideoUrl = utils.First(d.AwemeDetail.Video.PlayAddr.UrlList)
+	ret.VideoData.WmVideoUrlHQ = utils.First(d.AwemeDetail.Video.PlayAddr.UrlList)
+
+	ret.VideoData.NwmVideoUrl = utils.First(d.AwemeDetail.Video.PlayAddr.UrlList)
+	ret.VideoData.NwmVideoUrlHQ = utils.First(d.AwemeDetail.Video.PlayAddrH264.UrlList)
+
+	ret.CoverData.Cover.UrlList = d.AwemeDetail.Video.Cover.UrlList
+	ret.CoverData.Cover.Uri = d.AwemeDetail.Video.Cover.Uri
+	ret.CoverData.Cover.Width = d.AwemeDetail.Video.Cover.Width
+	ret.CoverData.Cover.Height = d.AwemeDetail.Video.Cover.Height
+
+	ret.CoverData.OriginCover.UrlList = d.AwemeDetail.Video.OriginCover.UrlList
+	ret.CoverData.OriginCover.Uri = d.AwemeDetail.Video.OriginCover.Uri
+	ret.CoverData.OriginCover.Width = d.AwemeDetail.Video.OriginCover.Width
+	ret.CoverData.OriginCover.Height = d.AwemeDetail.Video.OriginCover.Height
+
+	ret.CoverData.DynamicCover.Uri = d.AwemeDetail.Video.DynamicCover.Uri
+	ret.CoverData.DynamicCover.Width = d.AwemeDetail.Video.DynamicCover.Width
+	ret.CoverData.DynamicCover.Height = d.AwemeDetail.Video.DynamicCover.Height
+	ret.CoverData.DynamicCover.UrlList = d.AwemeDetail.Video.DynamicCover.UrlList
+
+	ret.Music.PlayUrl.UrlList = d.AwemeDetail.Music.PlayUrl.UrlList
+	ret.Music.PlayUrl.UrlKey = d.AwemeDetail.Music.PlayUrl.UrlKey
+	ret.Music.PlayUrl.Uri = d.AwemeDetail.Music.PlayUrl.Uri
+	ret.Music.PlayUrl.Height = d.AwemeDetail.Music.PlayUrl.Height
+	ret.Music.PlayUrl.Width = d.AwemeDetail.Music.PlayUrl.Width
+
+	ret.Images = d.AwemeDetail.Images
+	return ret
+}

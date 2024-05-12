@@ -17,6 +17,9 @@ authorization:
 # 建议使用docker启动 docker run -p 7317:7317 ghcr.io/go-rod/rod
 service_url: ws://192.168.31.10:7317/devtools/browser/b5427c79-ead4-4718-8230-f7566d136044
 
+# Douyin_TikTok_Download_API 接口配置
+douyin_api: http://127.0.0.1:8091/api/hybrid/video_data
+
 # 抖音相关配置
 douyin:
   #WEB登录的cookie

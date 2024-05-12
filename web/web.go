@@ -81,21 +81,45 @@ func DouYin(c *gin.Context) {
 
 		return
 	}
-	m, raw, err := _chrome.DouYinDetail(c.Request.Context(), v)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"msg": err.Error()})
-		return
-	}
-	if m.StatusCode == 0 {
-		_cache.Set(v, m, cache.DefaultExpiration)
-		_cache.Set(v+"_raw", raw, cache.DefaultExpiration)
+	if config.Default.DouYinApi == "local" {
+		m, raw, err := _chrome.DouYinDetail(c.Request.Context(), v)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"msg": err.Error()})
+			return
+		}
+		if m.StatusCode == 0 {
+			_cache.Set(v, m, cache.DefaultExpiration)
+			_cache.Set(v+"_raw", raw, cache.DefaultExpiration)
+		} else {
+			c.JSON(http.StatusNotFound, gin.H{"msg": "video not found"})
+			return
+		}
+		if t == "raw" {
+			c.String(http.StatusOK, raw)
+			return
+		}
+		c.JSON(http.StatusOK, chrome.FromDouYinDetail(m))
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{"msg": "video not found"})
-		return
+		m, raw, err := _chrome.DouYinAPIDetail(c.Request.Context(), v)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"msg": err.Error()})
+			return
+		}
+		if m != nil {
+			_cache.Set(v, m, cache.DefaultExpiration)
+			_cache.Set(v+"_raw", raw, cache.DefaultExpiration)
+		} else {
+			c.JSON(http.StatusNotFound, gin.H{"msg": "video not found"})
+			return
+		}
+		if t == "raw" {
+			c.String(http.StatusOK, raw)
+			return
+		}
+		c.JSON(http.StatusOK, m)
 	}
-	if t == "raw" {
-		c.String(http.StatusOK, raw)
-		return
-	}
-	c.JSON(http.StatusOK, chrome.FromDouYinDetail(m))
+}
+
+func DouYinWithAPI(c *gin.Context) {
+
 }
